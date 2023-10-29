@@ -1,0 +1,41 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import confusion_matrix, accuracy_score
+import matplotlib.pyplot as plt
+df = pd.read_csv('train.csv')
+# print(df['occupation_type'])
+df.dropna()
+df2 = df['occupation_type']
+ds3 = df.value_counts('occupation_type')
+ds3 = df.groupby('occupation_type')['result'].count()
+# print(ds3)
+ds3.plot(kind = 'pie')
+plt.show()
+df.drop(df.columns.difference(['occupation_type','result']), axis =1, inplace=True)
+def enw(occupation_type):
+    if occupation_type == 'work':
+        return 0
+    return 1
+df['occupation_type'] = df['occupation_type'].apply(enw)
+# print(df['occupation_type'].head())
+
+X = df.drop('result', axis = 1)
+y = df['result']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25)
+
+
+sc = StandardScaler()
+X_train = sc.fit_transform(X_train)
+X_test = sc.transform(X_test)
+
+
+classifier = KNeighborsClassifier(n_neighbors = 5)
+classifier.fit(X_train, y_train)
+
+
+y_pred = classifier.predict(X_test)
+print('Процент правильно предсказанных исходов:', accuracy_score(y_test, y_pred) * 100)
+print('Confusion matrix:')
+print(confusion_matrix(y_test, y_pred))
